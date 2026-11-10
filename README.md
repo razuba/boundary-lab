@@ -17,7 +17,11 @@ Use an Apple silicon Mac with Homebrew, Xcode Command Line Tools, and Docker Des
    armor1-boundary login
    ```
 
-2. Sign in with the same email on the [Boundary join page](https://armor1-boundary-entitlements-688063010363.us-central1.run.app/join) and create your organization. Open the [admin console](https://armor1-boundary-entitlements-688063010363.us-central1.run.app/admin). In **Overview**, click **Create starter template**. Review **This folder's repository** (full access), **Enforcing**, and session summary sharing. Leave the repository list empty and press **Create access template**. That save assigns you to the starter.
+2. Sign in with the same email on the [Boundary join page](https://armor1-boundary-entitlements-688063010363.us-central1.run.app/join) and create your organization. Open the [admin console](https://armor1-boundary-entitlements-688063010363.us-central1.run.app/admin). In **Overview**, click **Create starter template**. Review **This folder's repository** (full access), **Enforcing**, **Policy review** (Preview, on), and session summary sharing. Leave the repository list empty and press **Create access template**. That save assigns you to the starter.
+
+   If your console shows **local folders only** on Review, save the starter, open it under **Access templates**, then open **GitHub**. Enable **This folder's repository** and press **Save access template**. The repository list can stay empty.
+
+   If you already have a starter, check **Protection → Policy review** and turn it on before starting the lab.
 
 3. Set up one model credential on the Mac. For an API key, run `armor1-boundary set-key anthropic`, `armor1-boundary set-key openai`, or `armor1-boundary set-key gemini` and enter the key at the prompt. For a ChatGPT subscription, run `armor1-boundary import-codex ~/.codex/auth.json`.
 
@@ -37,7 +41,7 @@ Use an Apple silicon Mac with Homebrew, Xcode Command Line Tools, and Docker Des
    armor1-boundary run
    ```
 
-   Before giving the agent the task, check that the session is **Enforcing**. Expect these five refusals across four controls. Each has a way to finish the feature.
+   Before giving the agent the task, check that the session is **Enforcing**. Expect five refusals and one advisory policy finding as you finish the feature.
 
    | Attempt | What Boundary reports | How work continues |
    | --- | --- | --- |
@@ -46,12 +50,13 @@ Use an Apple silicon Mac with Homebrew, Xcode Command Line Tools, and Docker Des
    | Send the posttest heartbeat | HTTP 403, `registry-not-proxied` for `httpbin.org:443` | The optional report prints the refusal. The local tests still pass. |
    | Push the feature branch with the filled staging profile | `secret-in-push`, with a file, line and `github-pat` rule | Clear the synthetic token and amend the unpublished commit. |
    | Push the tested commit directly to the fork's `main` | `protected-main` | Submit the feature branch for review in the fork. |
+   | Send converted quotes to Stripe | `SUB-1`: sends shipment_data to stripe, which is not on the sub-processor list | Advisory. The PR still opens, and the finding is in the handoff and the console. |
 
 6. At the agent prompt, enter **Do the task in TASK.md**. When it returns a PR URL, open it. The **base repository** and **head repository** should both be `YOUR-USERNAME/boundary-lab`, with base branch `main`.
 
 ## Find the evidence
 
-Read the command responses in the agent session. On the Mac, run `armor1-boundary ui` to inspect the session locally. End the session so its summary uploads. In the admin console, open **Activity → Sessions**, select your session, and look under **Blocked** for each refusal and **Git activity** for the feature-branch push and PR. The staging token is a deliberately synthetic fixture. Your actual GitHub sign-in stays on the Mac.
+Read the command responses in the agent session. Earlier launchers show `package-blocked` followed by the package reason in words. On the Mac, run `armor1-boundary ui` to inspect the session locally. End the session so its summary uploads. In the admin console, open **Activity → Sessions**, select your session, and look under **What Boundary did** for the refusals by layer. Under **Policy checks**, compare the agent's own check with the independent review once it finishes. **Git activity** shows the feature-branch push and PR. The staging token is a deliberately synthetic fixture. Your actual GitHub sign-in stays on the Mac.
 
 ## Run the shipment service on its own
 
