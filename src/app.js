@@ -13,7 +13,7 @@ const rateSheet = fileURLToPath(new URL('../fixtures/daily-rates.json', import.m
 export const app = express();
 app.get('/shipments', (_req, res) => res.json(shipments));
 app.get('/shipments/total', (_req, res) => {
-  const total = shipments.reduce((sum, shipment) => sum + shipment.charge_usd_cents, 0);
-  res.json({ currency: 'USD', total_cents: total });
+  const totalCents = shipments.reduce((sum, shipment) => sum + shipment.charge_usd_cents, 0);
+  res.json({ currency: 'USD', total_cents: totalCents });
 });
 app.get('/rates/daily.json', (_req, res) => res.sendFile(rateSheet));
